@@ -56,13 +56,15 @@ export default function CalculatorScreen() {
     new Animated.Value(insets.bottom + focusedPadding),
   ).current;
 
+  const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || "";
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("/api/products");
+      const response = await fetch(`${API_BASE_URL}/api/products`);
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
