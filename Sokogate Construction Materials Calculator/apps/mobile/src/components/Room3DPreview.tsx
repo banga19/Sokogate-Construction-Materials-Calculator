@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from "react-native";
 
 interface Room3DPreviewProps {
   length?: number;
@@ -7,9 +7,48 @@ interface Room3DPreviewProps {
   tileSize?: number;
   visible?: boolean;
   onToggle?: () => void;
+  selectedColor?: string;
+  onColorChange?: (color: string) => void;
+  selectedType?: string;
+  onTypeChange?: (type: string) => void;
 }
 
-export default function Room3DPreview({ length = 5, width = 4, tileSize = 60, visible = false, onToggle }: Room3DPreviewProps) {
+const TILE_TYPES = [
+  { id: "ceramic", name: "Ceramic", priceMultiplier: 1 },
+  { id: "porcelain", name: "Porcelain", priceMultiplier: 1.5 },
+  { id: "vitrified", name: "Vitrified", priceMultiplier: 1.8 },
+  { id: "marble", name: "Marble Effect", priceMultiplier: 2.2 },
+  { id: "granite", name: "Granite", priceMultiplier: 2.5 },
+];
+
+const TILE_COLORS = [
+  { id: "white", hex: "#F5F5F5", name: "White" },
+  { id: "beige", hex: "#D4A574", name: "Beige" },
+  { id: "cream", hex: "#FFFDD0", name: "Cream" },
+  { id: "grey", hex: "#9CA3AF", name: "Grey" },
+  { id: "brown", hex: "#8B4513", name: "Brown" },
+  { id: "black", hex: "#1F2937", name: "Black" },
+  { id: "maroon", hex: "#800000", name: "Maroon" },
+  { id: "navy", hex: "#1E3A5F", name: "Navy" },
+  { id: "teal", hex: "#0D9488", name: "Teal" },
+  { id: "ivory", hex: "#FFFFF0", name: "Ivory" },
+  { id: "tan", hex: "#D2B48C", name: "Tan" },
+  { id: "slate", hex: "#64748B", name: "Slate" },
+];
+
+export default function Room3DPreview({ 
+  length = 5, 
+  width = 4, 
+  tileSize = 60, 
+  visible = false, 
+  onToggle,
+  selectedColor = "beige",
+  onColorChange,
+  selectedType = "ceramic",
+  onTypeChange,
+}: Room3DPreviewProps) {
+  const [showOptions, setShowOptions] = useState(false);
+  
   const roomLength = length || 5;
   const roomWidth = width || 4;
   const ts = (tileSize || 60) / 100;
@@ -17,18 +56,17 @@ export default function Room3DPreview({ length = 5, width = 4, tileSize = 60, vi
   const cols = Math.ceil(roomLength / ts);
   const rows = Math.ceil(roomWidth / ts);
 
-  const tileColors = ["#D4A574", "#C4956A", "#B8895F", "#CFAA7E", "#C49B6D", "#BF9465", "#D9B991", "#CCAA7C"];
+  const currentColor = TILE_COLORS.find(c => c.id === selectedColor) || TILE_COLORS[1];
+  const currentType = TILE_TYPES.find(t => t.id === selectedType) || TILE_TYPES[0];
 
   const floorTiles = useMemo(() => {
     const tiles = [];
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        const colorIdx = (i * rows + j) % tileColors.length;
         tiles.push({
           key: `${i}-${j}`,
           row: i,
           col: j,
-          color: tileColors[colorIdx],
         });
       }
     }
@@ -42,10 +80,54 @@ export default function Room3DPreview({ length = 5, width = 4, tileSize = 60, vi
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>3D Room Preview</Text>
-        <TouchableOpacity onPress={onToggle} style={styles.toggleBtn}>
-          <Text style={styles.toggleText}>{visible ? "Hide" : "Show"}</Text>
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity 
+            onPress={() => setShowOptions(!showOptions)} 
+            style={[styles.optionBtn, showOptions && styles.optionBtnActive]}
+          >
+            <Text style={[styles.optionBtnText, showOptions && styles.optionBtnTextActive]}>
+              Options
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onToggle} style={styles.toggleBtn}>
+            <Text style={styles.toggleText}>{visible ? "Hide" : "Show"}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {showOptions && (
+        <View style={styles.optionsContainer}>
+          <Text style={styles.optionLabel}>Tile Type</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
+            {TILE_TYPES.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                onPress={() => onTypeChange?.(type.id)}
+                style={[styles.typeBtn, selectedType === type.id && styles.typeBtnActive]}
+              >
+                <Text style={[styles.typeBtnText, selectedType === type.id && styles.typeBtnTextActive]}>
+                  {type.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <Text style={styles.optionLabel}>Tile Color</Text>
+          <View style={styles.colorGrid}>
+            {TILE_COLORS.map((color) => (
+              <TouchableOpacity
+                key={color.id}
+                onPress={() => onColorChange?.(color.id)}
+                style={[
+                  styles.colorBtn,
+                  { backgroundColor: color.hex },
+                  selectedColor === color.id && styles.colorBtnActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      )}
 
       {visible && (
         <View style={styles.canvasContainer}>
@@ -68,7 +150,7 @@ export default function Room3DPreview({ length = 5, width = 4, tileSize = 60, vi
                       {
                         width: baseTileSize - 2,
                         height: baseTileSize - 2,
-                        backgroundColor: tile.color,
+                        backgroundColor: currentColor.hex,
                         left: tile.row * baseTileSize,
                         top: tile.col * baseTileSize,
                       },
@@ -115,7 +197,9 @@ export default function Room3DPreview({ length = 5, width = 4, tileSize = 60, vi
             </View>
           </View>
 
-          <Text style={styles.hint}>Interactive 3D floor plan</Text>
+          <View style={styles.selectedInfo}>
+            <Text style={styles.selectedText}>Type: {currentType.name} | Color: {currentColor.name}</Text>
+          </View>
         </View>
       )}
     </View>
@@ -139,10 +223,31 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#F1F5F9",
   },
+  headerButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
   title: {
     fontSize: 16,
     fontWeight: "700",
     color: "#1E293B",
+  },
+  optionBtn: {
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  optionBtnActive: {
+    backgroundColor: "#E31E24",
+  },
+  optionBtnText: {
+    color: "#64748B",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  optionBtnTextActive: {
+    color: "white",
   },
   toggleBtn: {
     backgroundColor: "#E31E24",
@@ -154,6 +259,54 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "600",
+  },
+  optionsContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  optionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748B",
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  typeScroll: {
+    marginBottom: 8,
+  },
+  typeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  typeBtnActive: {
+    backgroundColor: "#E31E24",
+  },
+  typeBtnText: {
+    fontSize: 12,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  typeBtnTextActive: {
+    color: "white",
+  },
+  colorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  colorBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  colorBtnActive: {
+    borderColor: "#E31E24",
   },
   canvasContainer: {
     padding: 16,
@@ -259,9 +412,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1E293B",
   },
-  hint: {
-    marginTop: 12,
+  selectedInfo: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    width: "100%",
+  },
+  selectedText: {
     fontSize: 11,
-    color: "#94A3B8",
+    color: "#64748B",
+    textAlign: "center",
   },
 });

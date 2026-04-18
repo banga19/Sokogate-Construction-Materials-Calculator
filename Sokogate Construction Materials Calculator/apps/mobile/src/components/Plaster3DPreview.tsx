@@ -1,32 +1,64 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from "react-native";
 
 interface Plaster3DPreviewProps {
   area?: number;
   thickness?: number;
   visible?: boolean;
   onToggle?: () => void;
+  selectedColor?: string;
+  onColorChange?: (color: string) => void;
+  selectedType?: string;
+  onTypeChange?: (type: string) => void;
 }
 
-export default function Plaster3DPreview({ area = 20, thickness = 15, visible = false, onToggle }: Plaster3DPreviewProps) {
+const PLASTER_TYPES = [
+  { id: "cement", name: "Cement Sand", priceMultiplier: 1 },
+  { id: "lime", name: "Lime Plaster", priceMultiplier: 1.3 },
+  { id: "gypsum", name: "Gypsum", priceMultiplier: 1.5 },
+  { id: "mud", name: "Mud/Clay", priceMultiplier: 0.6 },
+];
+
+const PLASTER_COLORS = [
+  { id: "cream", hex: "#FDE68A", name: "Cream" },
+  { id: "yellow", hex: "#FCD34D", name: "Yellow" },
+  { id: "gold", hex: "#FBBF24", name: "Gold" },
+  { id: "amber", hex: "#F59E0B", name: "Amber" },
+  { id: "orange", hex: "#D97706", name: "Orange" },
+  { id: "brown", hex: "#B45309", name: "Brown" },
+  { id: "white", hex: "#FEF3C7", name: "White" },
+  { id: "sand", hex: "#FDE047", name: "Sand" },
+];
+
+export default function Plaster3DPreview({ 
+  area = 20, 
+  thickness = 15, 
+  visible = false, 
+  onToggle,
+  selectedColor = "cream",
+  onColorChange,
+  selectedType = "cement",
+  onTypeChange,
+}: Plaster3DPreviewProps) {
+  const [showOptions, setShowOptions] = useState(false);
+  
   const wallArea = area || 20;
   const thick = thickness || 15;
   
   const rows = Math.min(8, Math.ceil(Math.sqrt(wallArea)));
   const cols = Math.min(10, Math.ceil(wallArea / rows));
   
-  const plasterColors = ["#FDE68A", "#FCD34D", "#FBBF24", "#F59E0B", "#D97706", "#B45309"];
+  const currentColor = PLASTER_COLORS.find(c => c.id === selectedColor) || PLASTER_COLORS[0];
+  const currentType = PLASTER_TYPES.find(t => t.id === selectedType) || PLASTER_TYPES[0];
   
   const sections = useMemo(() => {
     const s = [];
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        const colorIdx = (i + j) % plasterColors.length;
         s.push({
           key: `${i}-${j}`,
           row: i,
           col: j,
-          color: plasterColors[colorIdx],
         });
       }
     }
@@ -40,10 +72,54 @@ export default function Plaster3DPreview({ area = 20, thickness = 15, visible = 
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>3D Wall Plaster Preview</Text>
-        <TouchableOpacity onPress={onToggle} style={styles.toggleBtn}>
-          <Text style={styles.toggleText}>{visible ? "Hide" : "Show"}</Text>
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity 
+            onPress={() => setShowOptions(!showOptions)} 
+            style={[styles.optionBtn, showOptions && styles.optionBtnActive]}
+          >
+            <Text style={[styles.optionBtnText, showOptions && styles.optionBtnTextActive]}>
+              Options
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onToggle} style={styles.toggleBtn}>
+            <Text style={styles.toggleText}>{visible ? "Hide" : "Show"}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {showOptions && (
+        <View style={styles.optionsContainer}>
+          <Text style={styles.optionLabel}>Plaster Type</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
+            {PLASTER_TYPES.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                onPress={() => onTypeChange?.(type.id)}
+                style={[styles.typeBtn, selectedType === type.id && styles.typeBtnActive]}
+              >
+                <Text style={[styles.typeBtnText, selectedType === type.id && styles.typeBtnTextActive]}>
+                  {type.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <Text style={styles.optionLabel}>Plaster Color</Text>
+          <View style={styles.colorGrid}>
+            {PLASTER_COLORS.map((color) => (
+              <TouchableOpacity
+                key={color.id}
+                onPress={() => onColorChange?.(color.id)}
+                style={[
+                  styles.colorBtn,
+                  { backgroundColor: color.hex },
+                  selectedColor === color.id && styles.colorBtnActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      )}
 
       {visible && (
         <View style={styles.canvasContainer}>
@@ -60,7 +136,7 @@ export default function Plaster3DPreview({ area = 20, thickness = 15, visible = 
                       {
                         width: sectionSize - 2,
                         height: sectionSize - 2,
-                        backgroundColor: section.color,
+                        backgroundColor: currentColor.hex,
                         left: section.row * sectionSize,
                         top: section.col * sectionSize,
                       },
@@ -114,7 +190,9 @@ export default function Plaster3DPreview({ area = 20, thickness = 15, visible = 
             </View>
           </View>
 
-          <Text style={styles.hint}>Cement + Sand Plaster</Text>
+          <View style={styles.selectedInfo}>
+            <Text style={styles.selectedText}>Type: {currentType.name} | Color: {currentColor.name}</Text>
+          </View>
         </View>
       )}
     </View>
@@ -138,10 +216,31 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#F1F5F9",
   },
+  headerButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
   title: {
     fontSize: 16,
     fontWeight: "700",
     color: "#1E293B",
+  },
+  optionBtn: {
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  optionBtnActive: {
+    backgroundColor: "#E31E24",
+  },
+  optionBtnText: {
+    color: "#64748B",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  optionBtnTextActive: {
+    color: "white",
   },
   toggleBtn: {
     backgroundColor: "#E31E24",
@@ -153,6 +252,54 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "600",
+  },
+  optionsContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  optionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748B",
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  typeScroll: {
+    marginBottom: 8,
+  },
+  typeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  typeBtnActive: {
+    backgroundColor: "#E31E24",
+  },
+  typeBtnText: {
+    fontSize: 12,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  typeBtnTextActive: {
+    color: "white",
+  },
+  colorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  colorBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  colorBtnActive: {
+    borderColor: "#E31E24",
   },
   canvasContainer: {
     padding: 16,
@@ -254,9 +401,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1E293B",
   },
-  hint: {
-    marginTop: 12,
+  selectedInfo: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    width: "100%",
+  },
+  selectedText: {
     fontSize: 11,
-    color: "#94A3B8",
+    color: "#64748B",
+    textAlign: "center",
   },
 });

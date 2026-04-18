@@ -43,9 +43,13 @@ export default function CalculatorScreen() {
   const [loading, setLoading] = useState(true);
   const [showPreview, setShowPreview] = useState(true);
   const [tileInputs, setTileInputs] = useState({ length: "5", width: "4", tileLength: "60", tileWidth: "60" });
+  const [tileMaterial, setTileMaterial] = useState({ color: "beige", type: "ceramic" });
   const [blockInputs, setBlockInputs] = useState({ length: "10", height: "3" });
+  const [blockMaterial, setBlockMaterial] = useState({ color: "grey", type: "sandcrete" });
   const [plasterInputs, setPlasterInputs] = useState({ area: "20", thickness: "15" });
+  const [plasterMaterial, setPlasterMaterial] = useState({ color: "cream", type: "cement" });
   const [roofingInputs, setRoofingInputs] = useState({ span: "12", width: "8" });
+  const [roofingMaterial, setRoofingMaterial] = useState({ color: "purple", type: "aluminum" });
 
   const focusedPadding = 12;
   const paddingAnimation = useRef(
@@ -233,6 +237,10 @@ export default function CalculatorScreen() {
                 tileSize={parseFloat(tileInputs.tileLength) || 60}
                 visible={showPreview}
                 onToggle={() => setShowPreview(!showPreview)}
+                selectedColor={tileMaterial.color}
+                onColorChange={(color) => setTileMaterial({ ...tileMaterial, color })}
+                selectedType={tileMaterial.type}
+                onTypeChange={(type) => setTileMaterial({ ...tileMaterial, type })}
               />
             )}
             {activeTab === "tiles" && (
@@ -250,6 +258,10 @@ export default function CalculatorScreen() {
                 thickness={parseFloat(plasterInputs.thickness) || 15}
                 visible={showPreview}
                 onToggle={() => setShowPreview(!showPreview)}
+                selectedColor={plasterMaterial.color}
+                onColorChange={(color) => setPlasterMaterial({ ...plasterMaterial, color })}
+                selectedType={plasterMaterial.type}
+                onTypeChange={(type) => setPlasterMaterial({ ...plasterMaterial, type })}
               />
             )}
             {activeTab === "plaster" && (
@@ -267,6 +279,10 @@ export default function CalculatorScreen() {
                 height={parseFloat(blockInputs.height) || 3}
                 visible={showPreview}
                 onToggle={() => setShowPreview(!showPreview)}
+                selectedColor={blockMaterial.color}
+                onColorChange={(color) => setBlockMaterial({ ...blockMaterial, color })}
+                selectedType={blockMaterial.type}
+                onTypeChange={(type) => setBlockMaterial({ ...blockMaterial, type })}
               />
             )}
             {activeTab === "blocks" && (
@@ -284,6 +300,10 @@ export default function CalculatorScreen() {
                 width={parseFloat(roofingInputs.width) || 8}
                 visible={showPreview}
                 onToggle={() => setShowPreview(!showPreview)}
+                selectedColor={roofingMaterial.color}
+                onColorChange={(color) => setRoofingMaterial({ ...roofingMaterial, color })}
+                selectedType={roofingMaterial.type}
+                onTypeChange={(type) => setRoofingMaterial({ ...roofingMaterial, type })}
               />
             )}
             {activeTab === "roofing" && (

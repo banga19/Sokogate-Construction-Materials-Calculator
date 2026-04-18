@@ -1,14 +1,45 @@
-import React, { useMemo } from "react";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import React, { useMemo, useState } from "react";
+import { View, StyleSheet, Text, TouchableOpacity, ScrollView } from "react-native";
 
 interface Wall3DPreviewProps {
   length?: number;
   height?: number;
   visible?: boolean;
   onToggle?: () => void;
+  selectedColor?: string;
+  onColorChange?: (color: string) => void;
+  selectedType?: string;
+  onTypeChange?: (type: string) => void;
 }
 
-export default function Wall3DPreview({ length = 10, height = 3, visible = false, onToggle }: Wall3DPreviewProps) {
+const BLOCK_TYPES = [
+  { id: "sandcrete", name: "Sandcrete", priceMultiplier: 1 },
+  { id: "concrete", name: "Concrete", priceMultiplier: 1.2 },
+  { id: "solid", name: "Solid Block", priceMultiplier: 1.5 },
+  { id: "hollow", name: "Hollow Block", priceMultiplier: 0.8 },
+];
+
+const BLOCK_COLORS = [
+  { id: "grey", hex: "#9CA3AF", name: "Grey" },
+  { id: "darkgrey", hex: "#6B7280", name: "Dark Grey" },
+  { id: "lightgrey", hex: "#D1D5DB", name: "Light Grey" },
+  { id: "charcoal", hex: "#4B5563", name: "Charcoal" },
+  { id: "slate", hex: "#64748B", name: "Slate" },
+  { id: "white", hex: "#F3F4F6", name: "White" },
+];
+
+export default function Wall3DPreview({ 
+  length = 10, 
+  height = 3, 
+  visible = false, 
+  onToggle,
+  selectedColor = "grey",
+  onColorChange,
+  selectedType = "sandcrete",
+  onTypeChange,
+}: Wall3DPreviewProps) {
+  const [showOptions, setShowOptions] = useState(false);
+  
   const wallLength = length || 10;
   const wallHeight = height || 3;
   
@@ -18,18 +49,17 @@ export default function Wall3DPreview({ length = 10, height = 3, visible = false
   const cols = Math.ceil(wallLength / blockWidth);
   const rows = Math.ceil(wallHeight / blockHeight);
   
-  const blockColors = ["#9CA3AF", "#6B7280", "#4B5563", "#D1D5DB", "#E5E7EB"];
+  const currentColor = BLOCK_COLORS.find(c => c.id === selectedColor) || BLOCK_COLORS[0];
+  const currentType = BLOCK_TYPES.find(t => t.id === selectedType) || BLOCK_TYPES[0];
   
   const blocks = useMemo(() => {
     const b = [];
     for (let i = 0; i < cols; i++) {
       for (let j = 0; j < rows; j++) {
-        const colorIdx = (i + j) % blockColors.length;
         b.push({
           key: `${i}-${j}`,
           row: i,
           col: j,
-          color: blockColors[colorIdx],
         });
       }
     }
@@ -45,10 +75,54 @@ export default function Wall3DPreview({ length = 10, height = 3, visible = false
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>3D Wall Preview</Text>
-        <TouchableOpacity onPress={onToggle} style={styles.toggleBtn}>
-          <Text style={styles.toggleText}>{visible ? "Hide" : "Show"}</Text>
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity 
+            onPress={() => setShowOptions(!showOptions)} 
+            style={[styles.optionBtn, showOptions && styles.optionBtnActive]}
+          >
+            <Text style={[styles.optionBtnText, showOptions && styles.optionBtnTextActive]}>
+              Options
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onToggle} style={styles.toggleBtn}>
+            <Text style={styles.toggleText}>{visible ? "Hide" : "Show"}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {showOptions && (
+        <View style={styles.optionsContainer}>
+          <Text style={styles.optionLabel}>Block Type</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll}>
+            {BLOCK_TYPES.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                onPress={() => onTypeChange?.(type.id)}
+                style={[styles.typeBtn, selectedType === type.id && styles.typeBtnActive]}
+              >
+                <Text style={[styles.typeBtnText, selectedType === type.id && styles.typeBtnTextActive]}>
+                  {type.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <Text style={styles.optionLabel}>Block Color</Text>
+          <View style={styles.colorGrid}>
+            {BLOCK_COLORS.map((color) => (
+              <TouchableOpacity
+                key={color.id}
+                onPress={() => onColorChange?.(color.id)}
+                style={[
+                  styles.colorBtn,
+                  { backgroundColor: color.hex },
+                  selectedColor === color.id && styles.colorBtnActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+      )}
 
       {visible && (
         <View style={styles.canvasContainer}>
@@ -65,7 +139,7 @@ export default function Wall3DPreview({ length = 10, height = 3, visible = false
                       {
                         width: baseBlockSize - 1,
                         height: baseBlockSize * 0.5 - 0.5,
-                        backgroundColor: block.color,
+                        backgroundColor: currentColor.hex,
                         left: block.row * baseBlockSize,
                         top: block.col * baseBlockSize * 0.5,
                       },
@@ -112,7 +186,9 @@ export default function Wall3DPreview({ length = 10, height = 3, visible = false
             </View>
           </View>
 
-          <Text style={styles.hint}>9" Sandcrete Blocks</Text>
+          <View style={styles.selectedInfo}>
+            <Text style={styles.selectedText}>Type: {currentType.name} | Color: {currentColor.name}</Text>
+          </View>
         </View>
       )}
     </View>
@@ -136,10 +212,31 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#F1F5F9",
   },
+  headerButtons: {
+    flexDirection: "row",
+    gap: 8,
+  },
   title: {
     fontSize: 16,
     fontWeight: "700",
     color: "#1E293B",
+  },
+  optionBtn: {
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  optionBtnActive: {
+    backgroundColor: "#E31E24",
+  },
+  optionBtnText: {
+    color: "#64748B",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  optionBtnTextActive: {
+    color: "white",
   },
   toggleBtn: {
     backgroundColor: "#E31E24",
@@ -151,6 +248,54 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 12,
     fontWeight: "600",
+  },
+  optionsContainer: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F5F9",
+  },
+  optionLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748B",
+    marginBottom: 8,
+    marginTop: 8,
+  },
+  typeScroll: {
+    marginBottom: 8,
+  },
+  typeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  typeBtnActive: {
+    backgroundColor: "#E31E24",
+  },
+  typeBtnText: {
+    fontSize: 12,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  typeBtnTextActive: {
+    color: "white",
+  },
+  colorGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  colorBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "transparent",
+  },
+  colorBtnActive: {
+    borderColor: "#E31E24",
   },
   canvasContainer: {
     padding: 16,
@@ -229,9 +374,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1E293B",
   },
-  hint: {
-    marginTop: 12,
+  selectedInfo: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: "#F1F5F9",
+    borderRadius: 8,
+    width: "100%",
+  },
+  selectedText: {
     fontSize: 11,
-    color: "#94A3B8",
+    color: "#64748B",
+    textAlign: "center",
   },
 });
