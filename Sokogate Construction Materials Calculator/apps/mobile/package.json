@@ -3,7 +3,9 @@
   "main": "index",
   "version": "1.0.0",
   "scripts": {
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@anythingai/app": "0.1.96",
@@ -19,6 +21,7 @@
     "@react-navigation/bottom-tabs": "7.4.8",
     "@react-navigation/native": "7.1.18",
     "@shopify/react-native-skia": "2.2.12",
+    "@supabase/supabase-js": "^2.39.0",
     "@tanstack/react-query": "5.72.2",
     "@teovilla/react-native-web-maps": "0.9.5",
     "@uploadcare/upload-client": "6.14.3",
@@ -61,7 +64,7 @@
     "expo-video": "3.0.11",
     "expo-web-browser": "15.0.8",
     "html-to-image": "1.11.13",
-    "lodash": "^4.18.1",
+    "lodash": "4.17.21",
     "lucide-react-native": "0.525.0",
     "moti": "0.30.0",
     "papaparse": "5.5.3",
@@ -91,8 +94,7 @@
     "three": "0.166.0",
     "yup": "1.6.1",
     "zod": "4.1.11",
-    "zustand": "5.0.3",
-    "@supabase/supabase-js": "^2.39.0"
+    "zustand": "5.0.3"
   },
   "devDependencies": {
     "@expo/cli": "55.0.15",
@@ -120,6 +122,9 @@
     "@react-navigation/native": "7.1.18",
     "@react-navigation/native-stack": "7.3.27",
     "@react-navigation/routers": "7.5.1",
-    "@react-navigation/stack": "7.4.7"
+    "@react-navigation/stack": "7.4.7",
+    "prismjs": "1.30.0",
+    "markdown-it": "12.3.2",
+    "validator": "13.15.0"
   }
 }

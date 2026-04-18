@@ -202,6 +202,25 @@ npx expo prebuild      # Generate native android/ios projects
 
 The mobile app (`apps/mobile/`) is a **native React Native** application using **Expo Router** (file-based routing). It provides the same 4 calculators optimized for touch with native UI components and keyboard handling.
 
+### 3D Visualization Features
+Each calculator includes an interactive 3D preview:
+- **Tiles** - Isometric floor plan with colored tiles, room dimensions, and area calculations
+- **Blocks** - 3D wall preview showing block arrangement and count
+- **Plaster** - Wall surface preview with thickness visualization
+- **Roofing** - Slanted roof preview with sheet layout
+
+### Material Customization
+- **Tile Types**: Ceramic, Porcelain, Vitrified, Marble Effect, Granite
+- **Tile Colors**: 12 color options (White, Beige, Cream, Grey, Brown, Black, Maroon, Navy, Teal, Ivory, Tan, Slate)
+- **Block Types**: Sandcrete, Concrete, Solid Block, Hollow Block
+- **Block Colors**: Grey, Dark Grey, Light Grey, Charcoal, Slate, White
+- **Plaster Types**: Cement Sand, Lime Plaster, Gypsum, Mud/Clay
+- **Plaster Colors**: Cream, Yellow, Gold, Amber, Orange, Brown, White, Sand
+- **Roofing Types**: Aluminum, Zinc, Copper, Steel, Roof Tile, Shingle
+- **Roofing Colors**: 10 color options including Purple, Violet, Charcoal, Terracotta, Rust, Slate
+
+Each 3D preview has an "Options" button to toggle the material selector panel.
+
 ### Key Files
 - `src/app/index.jsx` — Main calculator screen with tabs (Tiles, Plaster, Blocks, Roofing)
 - `src/components/KeyboardAvoidingAnimatedView.jsx` — Handles keyboard layout adjustments on input focus
@@ -504,6 +523,57 @@ Found a bug or have a new calculator idea?
 ## 📄 License
 
 Sokogate Internal — All rights reserved.
+
+---
+
+## 📦 Building Mobile App (Production)
+
+### Prerequisites
+- Node.js 18+
+- Expo account (for EAS builds) - free at https://expo.dev
+
+### Option 1: EAS Build (Recommended)
+```bash
+cd apps/mobile
+
+# Install EAS CLI
+npm install -g eas-cli
+
+# Login to Expo
+eas login
+
+# Build for Android (creates APK with bundled JS)
+eas build -p android --profile preview
+
+# Download the .apk after build completes
+```
+
+### Option 2: Local Build (No Expo account needed)
+```bash
+cd apps/mobile
+
+# Generate native Android project
+npx expo prebuild --platform android
+
+# Build debug APK (works without Metro server)
+cd android
+./gradlew assembleDebug
+
+# APK location: android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+### Option 3: Build Release APK
+```bash
+cd apps/mobile
+npx expo prebuild --platform android
+cd android
+./gradlew assembleRelease
+
+# APK location: android/app/build/outputs/apk/release/
+```
+
+### Connect to Production API
+Update `EXPO_PUBLIC_API_URL` in app.json or set environment variable to your production web app URL.
 
 ---
 
