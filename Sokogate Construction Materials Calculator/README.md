@@ -595,4 +595,4 @@ Update `EXPO_PUBLIC_API_URL` in app.json or set environment variable to your pro
 
 ---
 
-**Built with care for the Nigerian construction industry.** 🏢🚧
+**Built with care for the Kenyan construction industry.** 🏢🚧
