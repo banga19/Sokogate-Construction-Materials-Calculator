@@ -1,6 +1,6 @@
 # Sokogate Construction Materials Calculator
 
-A polished, full-stack construction materials estimator built for Sokogate. Helps contractors and construction professionals quickly calculate material quantities and costs for common building projects in Nigeria.
+A polished, full-stack construction materials estimator built for Sokogate. Helps contractors and construction professionals quickly calculate material quantities and costs for common building projects in Kenya.
 
 ![Sokogate](https://via.placeholder.com/80?text=SOKO) Built with React Router v7, PostgreSQL (Neon), and Tailwind CSS.
 
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 ### 4. (Optional) Seed Sample Data
 
-Populate with typical Nigerian market prices:
+Populate with typical Kenyan market prices:
 
 ```sql
 INSERT INTO products (name, category, unit, price, description) VALUES
