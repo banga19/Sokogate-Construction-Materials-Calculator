@@ -23,6 +23,10 @@ import {
 } from "lucide-react-native";
 import { StatusBar } from "expo-status-bar";
 import KeyboardAvoidingAnimatedView from "@/components/KeyboardAvoidingAnimatedView";
+import Room3DPreview from "@/components/Room3DPreview";
+import Wall3DPreview from "@/components/Wall3DPreview";
+import Plaster3DPreview from "@/components/Plaster3DPreview";
+import Roofing3DPreview from "@/components/Roofing3DPreview";
 
 const SOKO_RED = "#E31E24";
 
@@ -37,6 +41,11 @@ export default function CalculatorScreen() {
   const [activeTab, setActiveTab] = useState("tiles");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showPreview, setShowPreview] = useState(true);
+  const [tileInputs, setTileInputs] = useState({ length: "5", width: "4", tileLength: "60", tileWidth: "60" });
+  const [blockInputs, setBlockInputs] = useState({ length: "10", height: "3" });
+  const [plasterInputs, setPlasterInputs] = useState({ area: "20", thickness: "15" });
+  const [roofingInputs, setRoofingInputs] = useState({ span: "12", width: "8" });
 
   const focusedPadding = 12;
   const paddingAnimation = useRef(
@@ -218,10 +227,29 @@ export default function CalculatorScreen() {
             showsVerticalScrollIndicator={false}
           >
             {activeTab === "tiles" && (
+              <Room3DPreview
+                length={parseFloat(tileInputs.length) || 5}
+                width={parseFloat(tileInputs.width) || 4}
+                tileSize={parseFloat(tileInputs.tileLength) || 60}
+                visible={showPreview}
+                onToggle={() => setShowPreview(!showPreview)}
+              />
+            )}
+            {activeTab === "tiles" && (
               <TilesCalc
                 onFocus={handleInputFocus}
                 onBlur={handleInputBlur}
                 getPrice={getPrice}
+                values={tileInputs}
+                onChange={(newValues) => setTileInputs({ ...tileInputs, ...newValues })}
+              />
+            )}
+            {activeTab === "plaster" && (
+              <Plaster3DPreview
+                area={parseFloat(plasterInputs.area) || 20}
+                thickness={parseFloat(plasterInputs.thickness) || 15}
+                visible={showPreview}
+                onToggle={() => setShowPreview(!showPreview)}
               />
             )}
             {activeTab === "plaster" && (
@@ -229,6 +257,16 @@ export default function CalculatorScreen() {
                 onFocus={handleInputFocus}
                 onBlur={handleInputBlur}
                 getPrice={getPrice}
+                values={plasterInputs}
+                onChange={(newValues) => setPlasterInputs({ ...plasterInputs, ...newValues })}
+              />
+            )}
+            {activeTab === "blocks" && (
+              <Wall3DPreview
+                length={parseFloat(blockInputs.length) || 10}
+                height={parseFloat(blockInputs.height) || 3}
+                visible={showPreview}
+                onToggle={() => setShowPreview(!showPreview)}
               />
             )}
             {activeTab === "blocks" && (
@@ -236,6 +274,16 @@ export default function CalculatorScreen() {
                 onFocus={handleInputFocus}
                 onBlur={handleInputBlur}
                 getPrice={getPrice}
+                values={blockInputs}
+                onChange={(newValues) => setBlockInputs({ ...blockInputs, ...newValues })}
+              />
+            )}
+            {activeTab === "roofing" && (
+              <Roofing3DPreview
+                length={parseFloat(roofingInputs.span) || 12}
+                width={parseFloat(roofingInputs.width) || 8}
+                visible={showPreview}
+                onToggle={() => setShowPreview(!showPreview)}
               />
             )}
             {activeTab === "roofing" && (
@@ -243,6 +291,8 @@ export default function CalculatorScreen() {
                 onFocus={handleInputFocus}
                 onBlur={handleInputBlur}
                 getPrice={getPrice}
+                values={roofingInputs}
+                onChange={(newValues) => setRoofingInputs({ ...roofingInputs, ...newValues })}
               />
             )}
 
@@ -290,11 +340,27 @@ export default function CalculatorScreen() {
   );
 }
 
-function TilesCalc({ onFocus, onBlur, getPrice }) {
-  const [length, setLength] = useState("5");
-  const [width, setWidth] = useState("4");
-  const [tileLength, setTileLength] = useState("60");
-  const [tileWidth, setTileWidth] = useState("60");
+function TilesCalc({ onFocus, onBlur, getPrice, values, onChange }) {
+  const [internalLength, setInternalLength] = useState("5");
+  const [internalWidth, setInternalWidth] = useState("4");
+  const [internalTileLength, setInternalTileLength] = useState("60");
+  const [internalTileWidth, setInternalTileWidth] = useState("60");
+
+  const length = values?.length ?? internalLength;
+  const width = values?.width ?? internalWidth;
+  const tileLength = values?.tileLength ?? internalTileLength;
+  const tileWidth = values?.tileWidth ?? internalTileWidth;
+
+  const setValue = (key, value) => {
+    if (onChange) {
+      onChange({ [key]: value });
+    } else {
+      if (key === "length") setInternalLength(value);
+      if (key === "width") setInternalWidth(value);
+      if (key === "tileLength") setInternalTileLength(value);
+      if (key === "tileWidth") setInternalTileWidth(value);
+    }
+  };
 
   const results = useMemo(() => {
     const l = parseFloat(length) || 0;
@@ -329,28 +395,28 @@ function TilesCalc({ onFocus, onBlur, getPrice }) {
       <Input
         label="Room Length (m)"
         value={length}
-        onChange={setLength}
+        onChange={(val) => setValue("length", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
       <Input
         label="Room Width (m)"
         value={width}
-        onChange={setWidth}
+        onChange={(val) => setValue("width", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
       <Input
         label="Tile Size Length (cm)"
         value={tileLength}
-        onChange={setTileLength}
+        onChange={(val) => setValue("tileLength", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
       <Input
         label="Tile Size Width (cm)"
         value={tileWidth}
-        onChange={setTileWidth}
+        onChange={(val) => setValue("tileWidth", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
@@ -407,9 +473,21 @@ function TilesCalc({ onFocus, onBlur, getPrice }) {
   );
 }
 
-function PlasterCalc({ onFocus, onBlur, getPrice }) {
-  const [area, setArea] = useState("20");
-  const [thick, setThick] = useState("15");
+function PlasterCalc({ onFocus, onBlur, getPrice, values, onChange }) {
+  const [internalArea, setInternalArea] = useState("20");
+  const [internalThick, setInternalThick] = useState("15");
+
+  const area = values?.area ?? internalArea;
+  const thick = values?.thickness ?? internalThick;
+
+  const setValue = (key, value) => {
+    if (onChange) {
+      onChange(key === "thickness" ? { [key]: value } : { [key]: value });
+    } else {
+      if (key === "area") setInternalArea(value);
+      if (key === "thickness") setInternalThick(value);
+    }
+  };
 
   const results = useMemo(() => {
     const a = parseFloat(area) || 0;
@@ -433,14 +511,14 @@ function PlasterCalc({ onFocus, onBlur, getPrice }) {
       <Input
         label="Wall Area (m²)"
         value={area}
-        onChange={setArea}
+        onChange={(val) => setValue("area", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
       <Input
         label="Thickness (mm)"
         value={thick}
-        onChange={setThick}
+        onChange={(val) => setValue("thickness", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
@@ -491,9 +569,21 @@ function PlasterCalc({ onFocus, onBlur, getPrice }) {
   );
 }
 
-function BlocksCalc({ onFocus, onBlur, getPrice }) {
-  const [len, setLen] = useState("10");
-  const [h, setH] = useState("3");
+function BlocksCalc({ onFocus, onBlur, getPrice, values, onChange }) {
+  const [internalLen, setInternalLen] = useState("10");
+  const [internalH, setInternalH] = useState("3");
+
+  const len = values?.length ?? internalLen;
+  const h = values?.height ?? internalH;
+
+  const setValue = (key, value) => {
+    if (onChange) {
+      onChange({ [key]: value });
+    } else {
+      if (key === "length") setInternalLen(value);
+      if (key === "height") setInternalH(value);
+    }
+  };
 
   const results = useMemo(() => {
     const l = parseFloat(len) || 0;
@@ -523,14 +613,14 @@ function BlocksCalc({ onFocus, onBlur, getPrice }) {
       <Input
         label="Wall Length (m)"
         value={len}
-        onChange={setLen}
+        onChange={(val) => setValue("length", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
       <Input
         label="Wall Height (m)"
         value={h}
-        onChange={setH}
+        onChange={(val) => setValue("height", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
@@ -586,9 +676,21 @@ function BlocksCalc({ onFocus, onBlur, getPrice }) {
   );
 }
 
-function RoofingCalc({ onFocus, onBlur, getPrice }) {
-  const [span, setSpan] = useState("12");
-  const [width, setWidth] = useState("8");
+function RoofingCalc({ onFocus, onBlur, getPrice, values, onChange }) {
+  const [internalSpan, setInternalSpan] = useState("12");
+  const [internalWidth, setInternalWidth] = useState("8");
+
+  const span = values?.span ?? internalSpan;
+  const width = values?.width ?? internalWidth;
+
+  const setValue = (key, value) => {
+    if (onChange) {
+      onChange({ [key]: value });
+    } else {
+      if (key === "span") setInternalSpan(value);
+      if (key === "width") setInternalWidth(value);
+    }
+  };
 
   const results = useMemo(() => {
     const s = parseFloat(span) || 0;
@@ -620,14 +722,14 @@ function RoofingCalc({ onFocus, onBlur, getPrice }) {
       <Input
         label="Building Length (m)"
         value={span}
-        onChange={setSpan}
+        onChange={(val) => setValue("span", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />
       <Input
         label="Building Width (m)"
         value={width}
-        onChange={setWidth}
+        onChange={(val) => setValue("width", val)}
         onFocus={onFocus}
         onBlur={onBlur}
       />

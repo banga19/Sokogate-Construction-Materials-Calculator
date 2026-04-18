@@ -12,6 +12,10 @@ import {
   ShoppingBag,
   DollarSign,
 } from "lucide-react";
+import Room3DPreview from "@/components/Room3DPreview";
+import Wall3DPreview from "@/components/Wall3DPreview";
+import Plaster3DPreview from "@/components/Plaster3DPreview";
+import Roofing3DPreview from "@/components/Roofing3DPreview";
 
 const SOKO_RED = "#E31E24";
 
@@ -158,7 +162,13 @@ function TilesCalculator({ getPrice }) {
       title="Floor Tiles Estimator"
       icon={LayoutGrid}
       inputs={
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <>
+          <Room3DPreview 
+            length={inputs.length} 
+            width={inputs.width} 
+            tileSize={inputs.tileLength} 
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <InputGroup
             label="Room Length (m)"
             value={inputs.length}
@@ -189,7 +199,8 @@ function TilesCalculator({ getPrice }) {
             value={inputs.boxSize}
             onChange={(v) => setInputs({ ...inputs, boxSize: v })}
           />
-        </div>
+          </div>
+        </>
       }
       results={
         <div className="space-y-4">
@@ -272,8 +283,13 @@ function PlasteringCalculator({ getPrice }) {
       title="Plastering Estimator"
       icon={Layers}
       inputs={
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InputGroup
+        <>
+          <Plaster3DPreview 
+            area={inputs.area} 
+            thickness={inputs.thickness} 
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputGroup
             label="Wall Area (m²)"
             value={inputs.area}
             onChange={(v) => setInputs({ ...inputs, area: v })}
@@ -304,7 +320,8 @@ function PlasteringCalculator({ getPrice }) {
             value={inputs.wastage}
             onChange={(v) => setInputs({ ...inputs, wastage: v })}
           />
-        </div>
+          </div>
+        </>
       }
       results={
         <div className="space-y-4">
@@ -388,17 +405,22 @@ function BlocksCalculator({ getPrice }) {
     };
   }, [inputs, getPrice]);
 
-  return (
+return (
     <CalculatorLayout
       title="Building Blocks Estimator"
       icon={Square}
       inputs={
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InputGroup
-            label="Wall Length (m)"
-            value={inputs.length}
-            onChange={(v) => setInputs({ ...inputs, length: v })}
+        <>
+          <Wall3DPreview 
+            length={inputs.length} 
+            height={inputs.height} 
           />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputGroup
+              label="Wall Length (m)"
+              value={inputs.length}
+              onChange={(v) => setInputs({ ...inputs, length: v })}
+            />
           <InputGroup
             label="Wall Height (m)"
             value={inputs.height}
@@ -416,8 +438,9 @@ function BlocksCalculator({ getPrice }) {
             onChange={(v) => setInputs({ ...inputs, wastage: v })}
           />
         </div>
-      }
-      results={
+      </>
+    }
+    results={
         <div className="space-y-4">
           <ResultCard
             label="Effective Wall Area"
@@ -498,17 +521,22 @@ function RoofingCalculator({ getPrice }) {
     };
   }, [inputs, getPrice]);
 
-  return (
+return (
     <CalculatorLayout
       title="Roofing Sheets Estimator"
       icon={Home}
       inputs={
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InputGroup
-            label="Building Length (m)"
-            value={inputs.span}
-            onChange={(v) => setInputs({ ...inputs, span: v })}
+        <>
+          <Roofing3DPreview 
+            length={inputs.span} 
+            width={inputs.width} 
           />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputGroup
+              label="Building Length (m)"
+              value={inputs.span}
+              onChange={(v) => setInputs({ ...inputs, span: v })}
+            />
           <InputGroup
             label="Building Width (m)"
             value={inputs.width}
@@ -541,8 +569,9 @@ function RoofingCalculator({ getPrice }) {
             onChange={(v) => setInputs({ ...inputs, wastage: v })}
           />
         </div>
-      }
-      results={
+      </>
+    }
+    results={
         <div className="space-y-4">
           <ResultCard
             label="Estimated Roof Area"
