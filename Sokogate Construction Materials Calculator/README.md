@@ -59,24 +59,42 @@ Calculate roofing sheets, screws, and cost for different roof types.
 ```
 sokogate-construction-materials-calculator/
 ├── apps/
-│   └── web/                                # Web application
+│   ├── web/                                # Web application
+│   │   ├── src/
+│   │   │   ├── app/                       # React Router v7 file-based routes
+│   │   │   │   ├── page.jsx               # Main calculator dashboard
+│   │   │   │   ├── materials/page.tsx     # Public materials catalog
+│   │   │   │   ├── admin/products/page.jsx # Admin product management (CRUD)
+│   │   │   │   ├── api/                   # Serverless API routes
+│   │   │   │   │   ├── products/
+│   │   │   │   │   │   ├── route.js       # GET (list + filter), POST (create)
+│   │   │   │   │   │   └── [id]/route.js  # GET (one), PUT (update), DELETE
+│   │   │   │   │   └── utils/
+│   │   │   │   │       └── sql.js         # Neon WASM edge-sql client
+│   │   │   │   └── __create/              # Dev scaffolding (auto-generated)
+│   │   │   ├── components/               # 3D Preview components
+│   │   │   │   ├── Room3DPreview.tsx     # Tiles 3D visualization
+│   │   │   │   ├── Wall3DPreview.tsx     # Blocks 3D visualization
+│   │   │   │   ├── Plaster3DPreview.tsx  # Plaster 3D visualization
+│   │   │   │   └── Roofing3DPreview.tsx  # Roofing 3D visualization
+│   │   │   └── utils/
+│   │   │       └── database.ts            # Supabase client (legacy/research-only)
+│   │   ├── .env                           # Environment config (see below)
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   └── mobile/                            # Mobile application (Expo)
 │       ├── src/
-│       │   ├── app/                       # React Router v7 file-based routes
-│       │   │   ├── page.jsx               # Main calculator dashboard
-│       │   │   ├── materials/page.tsx     # Public materials catalog
-│       │   │   ├── admin/products/page.jsx # Admin product management (CRUD)
-│       │   │   ├── api/                   # Serverless API routes
-│       │   │   │   ├── products/
-│       │   │   │   │   ├── route.js       # GET (list + filter), POST (create)
-│       │   │   │   │   └── [id]/route.js  # GET (one), PUT (update), DELETE
-│       │   │   │   └── utils/
-│       │   │   │       └── sql.js         # Neon WASM edge-sql client
-│       │   │   └── __create/              # Dev scaffolding (auto-generated)
+│       │   ├── app/                       # Main app screens
+│       │   │   └── index.jsx              # Calculator with tabs
+│       │   ├── components/                 # 3D Preview components
+│       │   │   ├── Room3DPreview.tsx     # Tiles 3D visualization
+│       │   │   ├── Wall3DPreview.tsx     # Blocks 3D visualization
+│       │   │   ├── Plaster3DPreview.tsx  # Plaster 3D visualization
+│       │   │   └── Roofing3DPreview.tsx  # Roofing 3D visualization
 │       │   └── utils/
-│       │       └── database.ts            # Supabase client (legacy/research-only)
-│       ├── .env                           # Environment config (see below)
+│       ├── app.json                       # Expo configuration
 │       ├── package.json
-│       └── vite.config.ts
+│       └── android/                       # Generated native Android project
 └── README.md
 ```
 
