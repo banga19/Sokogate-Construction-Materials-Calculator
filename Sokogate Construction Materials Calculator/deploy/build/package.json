@@ -1,0 +1,12 @@
+{
+  "name": "sokogate-calculator",
+  "version": "1.0.0",
+  "description": "Sokogate Construction Materials Calculator",
+  "scripts": {
+    "start": "node build/server/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "type": "module"
+}
