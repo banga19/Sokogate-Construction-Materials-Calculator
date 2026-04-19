@@ -2,7 +2,7 @@
   "name": "sokogate-calculator",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server-assets/index.js"
+    "start": "node server-assets/assets/index-CUww0JST.js"
   },
   "type": "module"
 }
