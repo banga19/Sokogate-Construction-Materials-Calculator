@@ -1,0 +1,8 @@
+{
+  "name": "sokogate-calculator",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server-assets/index.js"
+  },
+  "type": "module"
+}
