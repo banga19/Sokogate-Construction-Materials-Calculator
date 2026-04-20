@@ -3,5 +3,5 @@
   "devCommand": "cd apps/web && npm run dev",
   "installCommand": "cd apps/web && npm install",
   "framework": "react-router",
-  "outputDirectory": "apps/web/build"
+  "outputDirectory": "build/client"
 }
