@@ -2,5 +2,6 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "react-router"
+  "framework": "react-router",
+  "outputDirectory": "apps/web/build/client"
 }
