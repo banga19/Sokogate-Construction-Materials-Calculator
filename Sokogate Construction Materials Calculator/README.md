@@ -508,6 +508,103 @@ npm run preview
 
 ## 🚢 Deployment
 
+### HostPinnacle cPanel (FTP Method)
+
+#### Step 1: Prepare Build Files
+
+The production build files are in `SIMPLE_DEPLOY/` folder:
+```
+SIMPLE_DEPLOY/
+├── .env                      # Environment variables
+├── package.json              # App configuration
+├── client/                  # Frontend static files
+│   └── assets/
+└── server-assets/           # Server files
+    └── assets/
+        ├── index-CUww0JST.js    # Main server file
+        └── server-build.js
+```
+
+#### Step 2: Upload via FTP
+
+Connect to your hosting server:
+
+```bash
+ftp ultimotradingltd.co.ke
+# Username: admin_banga@ultimotradingltd.co.ke
+# Password: (your FTP password)
+```
+
+Upload files to the `sokogate` folder:
+
+```bash
+cd sokogate
+# Navigate to local build folder first, then upload:
+put package.json
+put .env
+```
+
+Upload client folder contents:
+```bash
+cd client
+mkdir assets
+cd assets
+# Upload all files from SIMPLE_DEPLOY/client/assets/
+# Use: put filename.js for each file
+```
+
+Upload server-assets folder contents:
+```bash
+cd ../..
+cd server-assets
+mkdir assets
+cd assets
+# Upload:
+# - index-CUww0JST.js
+# - server-build.js
+```
+
+#### Step 3: Create Subdomain (Optional)
+
+1. Go to **cPanel → Subdomains**
+2. Create: `sokogate`
+3. Document Root: `/sokogate`
+
+#### Step 4: Create Node.js App
+
+1. Go to **cPanel → Setup Node.js App**
+2. Create new application:
+   - **Application Root:** `sokogate`
+   - **Application URL:** `sokogate.ultimotradingltd.co.ke` (your subdomain)
+   - **Application Startup File:** `server-assets/assets/index-CUww0JST.js`
+   - **Node.js Version:** `18`
+3. Click **Create**
+4. Click **Run NPM Install**
+5. Click **Start**
+
+#### Step 5: Fix package.json (If Needed)
+
+If you get `MODULE_NOT_FOUND` error, edit `package.json` in cPanel File Manager:
+
+```json
+{
+  "name": "sokogate-calculator",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server-assets/assets/index-CUww0JST.js"
+  }
+}
+```
+
+**Important:** Remove `"type": "module"` if present (causes require() errors).
+
+#### Access Your App
+
+- **Subdomain:** `https://sokogate.ultimotradingltd.co.ke`
+- **Or:** `https://yourdomain.com/sokogate` (if using subfolder)
+
+---
+
 ### Vercel (recommended)
 1. Push to GitHub
 2. Import project in Vercel
